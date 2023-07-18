@@ -1,5 +1,5 @@
-import React from 'react';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
 
 /**
  * 已知有一个远程加法
@@ -27,11 +27,42 @@ async function addRemote(a: number, b: number) {
  * })
  * ```
  */
+
+/**
+ * 循环当前输入的数组、并调用addRemote函数来进行远程加法计算。
+ * 每次循环时、将上一次计算的结果作为第一个参数、当前数字作为第二个参数传递给addRemote函数。
+ */
 async function add(...inputs: number[]) {
-  // 你的实现
+  let sum = 0;
+  for (let i = 0; i < inputs.length; i++) {
+    sum = await addRemote(sum, inputs[i]);
+  }
+  return sum;
 }
 
 function App() {
+  const [nums, setNums] = useState<number[]>([]);
+  const [count, setCount] = useState(0);
+
+  /**
+   * input 框输入事件、并将获取到的值转成数组
+   * @param value 输入的值
+   */
+  const handleInput = (value: string) => {
+    const vals = value ? value.split(",").map((item) => Number(item)) : [];
+    setNums(vals);
+  };
+
+  /**
+   * 累加参数
+   */
+  const handleAdd = async () => {
+    if (nums.length > 0) {
+      const sum = await add(...nums);
+      setCount(sum);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -39,12 +70,16 @@ function App() {
         <div>点击相加按钮能显示最终结果</div>
       </header>
       <section className="App-content">
-        <input type="text" placeholder="请输入要相加的数字（如1,3,4,5,6）" />
-        <button>相加</button>
+        <input
+          type="text"
+          placeholder="请输入要相加的数字（如1,3,4,5,6）"
+          onChange={(e) => handleInput(e.target.value)}
+        />
+        <button onClick={handleAdd}>相加</button>
       </section>
       <section className="App-result">
         <p>
-          相加结果是：<span>{'你的实现'}</span>
+          相加结果是：<span>{count}</span>
         </p>
       </section>
     </div>
